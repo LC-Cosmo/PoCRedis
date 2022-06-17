@@ -13,9 +13,9 @@ import com.redislabs.edu.redi2read.models.User;
 import com.redislabs.edu.redi2read.repositories.BookRepository;
 import com.redislabs.edu.redi2read.repositories.CartRepository;
 import com.redislabs.edu.redi2read.repositories.UserRepository;
+
 import com.redislabs.modules.rejson.JReJSON;
 import com.redislabs.modules.rejson.Path;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ public class CartService {
     @Autowired
     private UserRepository userRepository;
 
-    private JReJSON redisJson = new JReJSON();
+    private final JReJSON redisJson = new JReJSON();
 
     Path cartItemsPath = Path.of(".cartItems");
 
@@ -69,6 +69,6 @@ public class CartService {
             user.addBook(book);
         });
         userRepository.save(user);
-        cartRepository.delete(cart);
+        // cartRepository.delete(cart);
     }
 }

@@ -17,9 +17,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public abstract class CartRepository implements CrudRepository<Cart, String> {
+public class CartRepository implements CrudRepository<Cart, String> {
 
-    private JReJSON redisJson = new JReJSON();
+    private final JReJSON redisJson = new JReJSON();
     private final static String idPrefix = Cart.class.getName();
 
     @Autowired
@@ -42,7 +42,7 @@ public abstract class CartRepository implements CrudRepository<Cart, String> {
         String key = getKey(cart);
         redisJson.set(key, cart);
         redisSets().add(idPrefix, key);
-        redisHash().put("carts-by-user-id-idx", cart.getUserId().toString(), cart.getId().toString());
+        redisHash().put("carts-by-user-id-idx", cart.getUserId(), cart.getId());
 
         return cart;
     }
@@ -69,14 +69,14 @@ public abstract class CartRepository implements CrudRepository<Cart, String> {
     @Override
     public Iterable<Cart> findAll() {
         String[] keys = redisSets().members(idPrefix).stream().toArray(String[]::new);
-        return (Iterable<Cart>) redisJson.mget(Cart.class, keys);
+        return redisJson.mget(Cart.class, keys);
     }
 
     @Override
     public Iterable<Cart> findAllById(Iterable<String> ids) {
         String[] keys = StreamSupport.stream(ids.spliterator(), false) //
                 .map(id -> getKey(id)).toArray(String[]::new);
-        return (Iterable<Cart>) redisJson.mget(Cart.class, keys);
+        return redisJson.mget(Cart.class, keys);
     }
 
     @Override
@@ -92,6 +92,11 @@ public abstract class CartRepository implements CrudRepository<Cart, String> {
     @Override
     public void delete(Cart cart) {
         deleteById(cart.getId());
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends String> strings) {
+
     }
 
     @Override
