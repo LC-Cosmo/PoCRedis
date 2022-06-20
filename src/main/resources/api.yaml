@@ -1,37 +1,28 @@
+openapi: 3.0.3
 
 info:
-  title: OpenAPI Specification for CMS
-  version: '1.2'
-
-externalDocs:
-  description: More information about CMS API
-  url: http://mycollege.com/api
+  title: Cosmo Tech Connector Manager API
+  description: Cosmo Tech Connector Manager API
+  version: 0.0.8-SNAPSHOT
 
 servers:
-  - url: http://localhost:44333/api
-  - url: http://localhost:{port}/stagingapi
-    variables:
-      port:
-        enum:
-          - '44333'
-          - '8990'
-        default: '44333'
+  - url: 'http://localhost:8080'
 
 tags:
-  - name: course
-    description: Operations about Courses
+  - name: book
+    description: Operations about Books
 
 paths:
-  /courses:
-    summary: Operations about Courses
+  /books:
+    summary: Operations about Books
     get:
       tags:
-        - course
-      summary: Get all the courses
+        - book
+      summary: Get all the books
       responses:
         200:
           description: Success
         400:
           description: Incorrect Input
         default:
-          description: Successm
+          description: Success
