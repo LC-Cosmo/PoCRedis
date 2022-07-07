@@ -18,7 +18,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.function.Consumer
-import java.util.function.Function
 import java.util.stream.Collectors
 
 @Component
@@ -26,55 +25,55 @@ import java.util.stream.Collectors
 @Slf4j
 class CreateBooks : CommandLineRunner {
     @Autowired
-    private var bookRepository: BookRepository? = null
+    private lateinit var bookRepository: BookRepository
 
     @Autowired
-    private var categoryRepository: CategoryRepository? = null
+    private lateinit var categoryRepository: CategoryRepository
 
     @Throws(Exception::class)
     override fun run(vararg args: String) {
-        if (bookRepository!!.count() == 0L) {
-            var mapper = ObjectMapper()
+        if (bookRepository.count() == 0L) {
+            val mapper = ObjectMapper()
 
-            var typeReference: TypeReference<List<Book?>?> = object : TypeReference<List<Book?>?>() {}
+            val typeReference: TypeReference<List<Book?>?> = object : TypeReference<List<Book?>?>() {}
 
-            var files =  //
+            val files =  //
                 Files.list(Paths.get(javaClass.getResource("/data/books")!!.toURI())) //
-                    .filter { path: Path? -> Files.isRegularFile(path) } //
+                    .filter { path: Path? -> Files.isRegularFile(path!!) } //
                     .filter { path: Path -> path.toString().endsWith(".json") } //
                     .map(Path::toFile)//
                     .collect(Collectors.toList())
 
-            var categories: MutableMap<String, Category?> = HashMap()
+            val categories: MutableMap<String, Category?> = HashMap()
 
             files.forEach(Consumer { file: File ->
                 try {
                     println(">>>> Processing Book File: " + file.path)
 
-                    var categoryName = file.name.substring(0, file.name.lastIndexOf("_"))
+                    val categoryName = file.name.substring(0, file.name.lastIndexOf("_"))
 
                     println(">>>> Category: $categoryName")
 
-                    var category: Category?
+                    val category: Category?
 
                     if (!categories.containsKey(categoryName)) {
                         category = Category()
                             category.name = categoryName
-                        categoryRepository!!.save(category)
+                        categoryRepository.save(category)
                         categories[categoryName] = category
                     } else {
                         category = categories[categoryName]
+                        println(category)
                     }
 
-                    var inputStream: InputStream = FileInputStream(file)
+                    val inputStream: InputStream = FileInputStream(file)
 
-                    var books = mapper.readValue(inputStream, typeReference)
+                    val books : List<Book> = mapper.readValue(inputStream, typeReference) as List<Book>
 
                     books?.stream()?.forEach { book: Book? ->
-                        if (category != null) {
-                            book?.addCategory(category)
-                        }
-                        bookRepository!!.save(book)
+                        book?.addCategory(category!!)
+                        println(book!!)
+                        bookRepository.save(book!!)
                     }
 
                     if (books != null) {

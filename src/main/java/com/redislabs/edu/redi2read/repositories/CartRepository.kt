@@ -28,21 +28,21 @@ open class CartRepository : CrudRepository<Cart, String?> {
         return template!!.opsForHash()
     }
 
-    override fun <S : Cart?> save(cart: S): S {
+    override fun <S : Cart> save(cart: S): S {
         // set cart id
         if (cart?.id == null) {
             cart?.id = UUID.randomUUID().toString()
         }
-        var key: S = cart
-        redisJson[key.toString()] = cart
-        redisSets().add(idPrefix, key.toString())
+        var key = getKey(cart)
+        redisJson[key] = cart
+        redisSets().add(idPrefix, key)
         if (cart != null) {
             redisHash().put("carts-by-user-id-idx", cart.userId, cart.id)
         }
         return cart
     }
 
-    override fun <S : Cart?> saveAll(carts: Iterable<S>): Iterable<S> {
+    override fun <S : Cart> saveAll(carts: Iterable<S>): Iterable<S> {
         return StreamSupport //
             .stream(carts.spliterator(), false) //
             .map { cart: S -> save(cart) } //
@@ -50,7 +50,7 @@ open class CartRepository : CrudRepository<Cart, String?> {
     }
 
     override fun findById(id: String?): Optional<Cart> {
-        var cart : Cart = redisJson.get(/* key = */ getKey(id), Cart::class.java)
+        var cart : Cart = redisJson.get(getKey(id), Cart::class.java)
         return Optional.of(cart)
 
     }
@@ -107,7 +107,9 @@ open class CartRepository : CrudRepository<Cart, String?> {
         }
 
         fun getKey(id: String?): String {
-            return String.format("%s:%s", idPrefix, id)
+
+            val format = String.format("%s:%s", idPrefix, id)
+            return format
         }
     }
 }

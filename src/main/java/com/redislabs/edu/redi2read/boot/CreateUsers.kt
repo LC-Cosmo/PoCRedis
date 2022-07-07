@@ -18,34 +18,34 @@ import java.io.IOException
 @Slf4j
 class CreateUsers : CommandLineRunner {
     @Autowired
-    private var roleRepository: RoleRepository? = null
+    private lateinit var roleRepository: RoleRepository
 
     @Autowired
-    private var userRepository: UserRepository? = null
+    private lateinit var userRepository: UserRepository
 
     @Autowired
-    private var passwordEncoder: BCryptPasswordEncoder? = null
+    private lateinit var passwordEncoder: BCryptPasswordEncoder
     @Throws(Exception::class)
     override fun run(vararg args: String) {
-        if (userRepository!!.count() == 0L) {
+        if (userRepository.count() == 0L) {
             // load the roles
-            var admin = roleRepository!!.findFirstByName("admin")
-            var customer = roleRepository!!.findFirstByName("customer")
+            val admin = roleRepository.findFirstByName("admin")
+            val customer = roleRepository.findFirstByName("customer")
             try {
                 // create a Jackson object mapper
-                var mapper = ObjectMapper()
+                val mapper = ObjectMapper()
                 // create a type definition to convert the array of JSON into a List of Users
-                var typeReference: TypeReference<List<User?>?> = object : TypeReference<List<User?>?>() {}
+                val typeReference: TypeReference<List<User?>?> = object : TypeReference<List<User?>?>() {}
                 // make the JSON data available as an input stream
-                var inputStream = javaClass.getResourceAsStream("/data/users/users.json")
+                val inputStream = javaClass.getResourceAsStream("/data/users/users.json")
                 // convert the JSON to objects
-                var users = mapper.readValue(inputStream, typeReference)
+                val users = mapper.readValue(inputStream, typeReference)
                 users?.stream()?.forEach { user: User? ->
-                    user?.password = passwordEncoder!!.encode(user!!.password)
+                    user?.password = passwordEncoder.encode(user!!.password)
                     if (customer != null) {
-                        user?.addRole(customer)
+                        user.addRole(customer)
                     }
-                    userRepository!!.save(user)
+                    userRepository.save(user)
                 }
                 if (users != null) {
                     println(">>>> " + users.size + " Users Saved!")
@@ -53,14 +53,14 @@ class CreateUsers : CommandLineRunner {
             } catch (e: IOException) {
                 println(">>>> Unable to import users: " + e.message)
             }
-            var adminUser = User()
+            val adminUser = User()
             adminUser.name = "Adminus Admistradore"
             adminUser.email = "admin@example.com"
-            adminUser.password = passwordEncoder!!.encode("Reindeer Flotilla") //
+            adminUser.password = passwordEncoder.encode("Reindeer Flotilla") //
             if (admin != null) {
                 adminUser.addRole(admin)
             }
-            userRepository!!.save(adminUser)
+            userRepository.save(adminUser)
             println(">>>> Loaded User Data and Created users...")
         }
     }

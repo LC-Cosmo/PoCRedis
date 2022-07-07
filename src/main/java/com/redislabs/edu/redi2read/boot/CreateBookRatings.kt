@@ -17,33 +17,33 @@ import java.util.stream.IntStream
 @Slf4j
 class CreateBookRatings : CommandLineRunner {
     @Value("\${app.numberOfRatings}")
-    private var numberOfRatings: Int? = null
+    var numberOfRatings: Int? = null
 
     @Value("\${app.ratingStars}")
     private var ratingStars: Int? = null
 
     @Autowired
-    private var redisTemplate: RedisTemplate<String, String>? = null
+    private lateinit var redisTemplate: RedisTemplate<String, String>
 
     @Autowired
-    private var bookRatingRepo: BookRatingRepository? = null
+    private lateinit var bookRatingRepo: BookRatingRepository
     @Throws(Exception::class)
     override fun run(vararg args: String) {
-        if (bookRatingRepo!!.count() == 0L) {
-            var random = Random()
+        if (bookRatingRepo.count() == 0L) {
+            val random = Random()
             IntStream.range(0, numberOfRatings!!).forEach {
-                var bookId = redisTemplate!!.opsForSet().randomMember(Book::class.java.name)
-                val userId = redisTemplate!!.opsForSet().randomMember(User::class.java.name)
-                var stars = random.nextInt(ratingStars!!) + 1
-                var user = User()
+                val bookId = redisTemplate.opsForSet().randomMember(Book::class.java.name)
+                val userId = redisTemplate.opsForSet().randomMember(User::class.java.name)
+                val stars = random.nextInt(ratingStars!!) + 1
+                val user = User()
                 user.id = userId
-                var book = Book()
+                val book = Book()
                 book.id = bookId
-                var rating = BookRating()
+                val rating = BookRating()
                     rating.user = user
                     rating.book = book
                     rating.rating = stars
-                bookRatingRepo!!.save(rating)
+                bookRatingRepo.save(rating)
             }
             println(">>>> BookRating created...")
         }

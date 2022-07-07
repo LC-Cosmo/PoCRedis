@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 @Slf4j
 class CreateRoles : CommandLineRunner {
     @Autowired
-    private var roleRepository: RoleRepository? = null
+    private lateinit var roleRepository: RoleRepository
     @Throws(Exception::class)
     override fun run(vararg args: String) {
         if (roleRepository!!.count() == 0L) {

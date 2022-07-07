@@ -24,7 +24,7 @@ class Book {
     @EqualsAndHashCode.Include
     var id: String  = ""
     var title: String? = ""
-    var subtitle: String = ""
+    var subtitle: String? = ""
     var description: String? = ""
     var language: String? = ""
     var pageCount: Long? = 0
